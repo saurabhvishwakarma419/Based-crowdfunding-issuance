@@ -1,1 +1,62 @@
 
+const hre = require("hardhat");
+
+async function main() {
+  console.log("Starting deployment...");
+
+  // Get the contract factory
+  const Crowdfunding = await hre.ethers.getContractFactory("Project");
+  
+  // Deploy the contract
+  console.log("Deploying Blockchain Crowdfunding Platform...");
+  const crowdfunding = await Crowdfunding.deploy();
+  
+  await crowdfunding.deployed();
+
+  console.log("✅ Contract deployed successfully!");
+  console.log(`📍 Contract Address: ${crowdfunding.address}`);
+  console.log(`🔗 Network: ${hre.network.name}`);
+  
+  // Get deployer info
+  const [deployer] = await hre.ethers.getSigners();
+  console.log(`👤 Deployer Address: ${deployer.address}`);
+  console.log(`💰 Deployer Balance: ${hre.ethers.utils.formatEther(await deployer.getBalance())} ETH`);
+
+  // Display contract details
+  console.log("\n📊 Contract Details:");
+  console.log(`Platform Owner: ${await crowdfunding.platformOwner()}`);
+  console.log(`Platform Fee: ${await crowdfunding.platformFeePercent()}%`);
+  console.log(`Total Campaigns: ${await crowdfunding.getTotalCampaigns()}`);
+
+  // Wait for block confirmations on testnets/mainnet
+  if (hre.network.name !== "hardhat" && hre.network.name !== "localhost") {
+    console.log("\nWaiting for block confirmations...");
+    await crowdfunding.deployTransaction.wait(6);
+    console.log("✅ Block confirmations completed!");
+
+    // Verify contract on Etherscan
+    console.log("\n🔍 Verifying contract on Etherscan...");
+    try {
+      await hre.run("verify:verify", {
+        address: crowdfunding.address,
+        constructorArguments: [],
+      });
+      console.log("✅ Contract verified on Etherscan!");
+    } catch (error) {
+      console.log("❌ Verification failed:", error.message);
+    }
+  }
+
+  console.log("\n🎉 Deployment completed successfully!");
+  console.log("\n📝 Save these details for interaction:");
+  console.log(`Contract Address: ${crowdfunding.address}`);
+  console.log(`Network: ${hre.network.name}`);
+}
+
+// Execute deployment
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("❌ Deployment failed:", error);
+    process.exit(1);
+  });
