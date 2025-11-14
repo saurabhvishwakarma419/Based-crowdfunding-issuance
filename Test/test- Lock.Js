@@ -1,4 +1,3 @@
-
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
@@ -6,7 +5,7 @@ const { time } = require("@nomicfoundation/hardhat-network-helpers");
 describe("Blockchain Crowdfunding Platform", function () {
   let crowdfunding;
   let owner;
-  let creator;
+let creator;
   let contributor1;
   let contributor2;
   
